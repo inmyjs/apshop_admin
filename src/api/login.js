@@ -3,10 +3,10 @@ import request from '@/utils/request'
 
 export function loginByUsername(username, password) {
   var public_key = `-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDTFhDjnucX4y8ycC47Bo2uL5hY
-fokXUA+xQZGKLM/sy4Ys5DFHJcOJOLwYyR7Cj8Wi2wj052K1BVg/ZQvaY08jH0Td
-NEXwEJ4QyXt57qrzbMdk7WgDbLJGmRNFznTnsF3ur8KT/LjKalQMF/WeeefyNvjw
-14IDIyR1AEs/sAKHgwIDAQAB
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCet7+sqe0OkG0XkvohwcLDD28O
+RkV3J3TchI3j8abtMkl9LWixGIdhjMHcOybfcmSEW78ZzPMKGC8NX4fZ6GYerga2
+sxVU6zNjU1U0Rc8DM9NOC8GWNrPbphEx65jRIeie0xaiJxcKV4FmJcgKDu19yXMo
+VovAFKXIvK71jcIWAwIDAQAB
 -----END PUBLIC KEY-----`;
 
   var encrypt = new JSEncrypt();
