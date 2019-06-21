@@ -2,36 +2,39 @@
   <div class="app-container">
     <el-card class="box-card">
       <div slot="header">
-        <span style="line-height: 36px;">偏好设置</span>
-        <a class='link-type link-title' target="_blank" href='https://panjiachen.github.io/vue-element-admin-site/#/theme'>换肤文档</a>
+        <a class="link-type link-title" target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/guide/advanced/theme.html">
+          {{ $t('theme.documentation') }}
+        </a>
       </div>
       <div class="box-item">
-        <span class="field-label">换肤:</span>
-        <el-switch v-model="theme"></el-switch>
+        <span class="field-label">{{ $t('theme.change') }} : </span>
+        <el-switch v-model="theme"/>
+        <code style="margin-top:15px;">{{ $t('theme.tips') }}</code>
       </div>
     </el-card>
 
     <div class="block">
-        <el-button type="primary">成功按钮</el-button>
-        <el-button type="success">成功按钮</el-button>
-        <el-button type="warning">警告按钮</el-button>
-        <el-button type="danger">危险按钮</el-button>
-        <el-button type="info">信息按钮</el-button>
+      <el-button type="primary">Primary</el-button>
+      <el-button type="success">Success</el-button>
+      <el-button type="info">Info</el-button>
+      <el-button type="warning">Warning</el-button>
+      <el-button type="danger">Danger</el-button>
     </div>
 
     <div class="block">
-      <el-button type="primary" icon="el-icon-edit"></el-button>
-      <el-button type="primary" icon="el-icon-share"></el-button>
-      <el-button type="primary" icon="el-icon-delete"></el-button>
+      <el-button type="primary" icon="el-icon-edit"/>
+      <el-button type="primary" icon="el-icon-share"/>
+      <el-button type="primary" icon="el-icon-delete"/>
       <el-button type="primary" icon="el-icon-search">Search</el-button>
-      <el-button type="primary">Upload
-        <i class="el-icon-upload el-icon-right"></i>
+      <el-button type="primary">
+        Upload
+        <i class="el-icon-upload el-icon-right"/>
       </el-button>
     </div>
 
     <div class="block">
-      <el-tag class='tag-item' v-for="tag in tags" :type="tag.type" :key='tag.type'>
-        {{tag.name}}
+      <el-tag v-for="tag in tags" :type="tag.type" :key="tag.type" class="tag-item">
+        {{ tag.name }}
       </el-tag>
     </div>
 
@@ -44,7 +47,7 @@
     </div>
 
     <div class="block">
-      <el-slider v-model="slideValue"></el-slider>
+      <el-slider v-model="slideValue"/>
     </div>
 
   </div>
@@ -52,10 +55,10 @@
 
 <script>
 import { toggleClass } from '@/utils'
-import '@/assets/custom-theme/index.css' // 换肤版本element-ui css
+import '@/assets/custom-theme/index.css' // the theme changed version element-ui css
 
 export default {
-  name: 'theme',
+  name: 'Theme',
   data() {
     return {
       theme: false,
@@ -79,8 +82,12 @@ export default {
 </script>
 
 <style scoped>
+.field-label{
+  vertical-align: middle;
+}
 .box-card {
   width: 400px;
+  max-width: 100%;
   margin: 20px auto;
 }
 

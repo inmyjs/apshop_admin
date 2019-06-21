@@ -33,24 +33,21 @@
           <el-col :span="21">
             <el-row>
             <el-col :span="6">
-              <el-tooltip class="item" effect="dark" content="商品封面" placement="top">
-            <el-upload
-              class="avatar-uploader"
-              :action="uploadURL"
-              :show-file-list="false"
-              :on-success="handleAvatarSuccess"
-              :before-upload="beforeImgUpload">
-              <img v-if="postForm.imgurl" :src="postForm.imgurl" class="avatar">
-              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-            </el-upload>
-              </el-tooltip>
+              <el-form-item label="商品封面(436x360):" prop="imgurl">
+                <Croppa ref="imgurl" v-model="postForm.imgurl" :width="218" :height="180" :quality="2"></Croppa>
+              </el-form-item>
             </el-col>
             <el-col :span="15">
               <el-form-item style="" prop="title">
-                <MDinput name="name" v-model="postForm.title" required :maxlength="100">
+                <MDinput name="name" v-model="postForm.title" required :maxlength="64">
                   标题
                 </MDinput>
                 <span v-show="postForm.title.length>=26" class='title-prompt'>APP可能会显示不全</span>
+              </el-form-item>
+              <el-form-item style="" prop="subTitle">
+                <MDinput name="name" v-model="postForm.subTitle" required :maxlength="200">
+                  副标题
+                </MDinput>
               </el-form-item>
               <el-form-item label="商品名称:" prop="name">
 
@@ -95,6 +92,18 @@
               </el-row>
               <el-row>
                 <el-col :span="6">
+                  <el-form-item  label="分类:" class="postInfo-container-item" prop="goodsClassID">
+                    <el-select v-model="postForm.goodsClassID"  placeholder="分类" clearable>
+                      <el-option
+                        v-for="item in gooddsClass_options"
+                        :key="item.goodsClassID"
+                        :label="item.name"
+                        :value="item.goodsClassID">
+                      </el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="6">
                   <el-form-item  label="库存:" class="postInfo-container-item" prop="stock">
                     <el-input-number placeholder="库存" style='min-width:200px;' v-model.number="postForm.stock">
                     </el-input-number>
@@ -117,19 +126,11 @@
         </el-row>
 
         <div class="editor-container">
-          <tinymce :height=400 ref="editor" v-model="postForm.note"></tinymce>
+          <Ueditor :height=400 ref="editor" v-model="postForm.note"></Ueditor>
         </div>
-        <el-upload
-          ref="uploadImages"
-          :action="uploadURL"
-          list-type="picture-card"
-          :on-preview="handlePictureCardPreview"
-          :on-success="handlePictureCardSuccess"
-          :on-remove="handleRemove"
-          :file-list="postForm.goodsImages"
-          :before-upload="beforeImgUpload">
-          <i class="el-icon-plus"></i>
-        </el-upload>
+        <el-form-item label="轮播图(872x720):">
+          <CroppaList ref="uploadImages" v-model="postForm.goodsImages" :width="218" :height="180" :quality="4"></CroppaList>
+        </el-form-item>
         <el-dialog :visible.sync="dialogVisible" size="tiny">
           <img width="100%" :src="dialogImageUrl" alt="">
         </el-dialog>
@@ -140,20 +141,19 @@
 </template>
 
 <script>
-import Tinymce from '@/components/Tinymce'
-import Upload from '@/components/Upload/singleImage'
+import Ueditor from '@/components/Ueditor'
 import MDinput from '@/components/MDinput'
-import Multiselect from 'vue-multiselect'// 使用的一个多选框组件，element-ui的select不能满足所有需求
-import 'vue-multiselect/dist/vue-multiselect.min.css'// 多选框组件css
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { fetchGoods,postGoods } from '@/api/goods'
-
-import ElRow from "element-ui/packages/row/src/row";
-import ElInputNumber from "../../../../node_modules/element-ui/packages/input-number/src/input-number.vue";
+import { fetchList} from '@/api/model'
+import Croppa from '@/components/Croppa'
+import CroppaList from '@/components/CroppaList'
+import { getServerToken } from '@/utils/auth'
 
 const defaultForm = {
   goodsID:'',
   title: '', // 标题
+  subTitle: '', // 标题
   note: '', // 详情
   name: '', // 名称
   goodsType:'',
@@ -164,13 +164,14 @@ const defaultForm = {
   goodsStatus:'0',
   sortNo:0,
   goodsImages:[],
+  goodsClassID:'',
   recommendFlag:false,
   comment_disabled: false
 }
 
 const calendarTypeOptions = [
-  { key: 'T', display_name: '主题' },
-  { key: 'C', display_name: '组件' }
+  { key: 'E', display_name: '实物' },
+  { key: 'V', display_name: '虚拟商品' }
 ]
 const calendargoodsStatusOptions = [
   { key: '0', display_name: '新建' },
@@ -183,9 +184,7 @@ const calendargoodsStatusOptions = [
 export default {
   name: 'productDetail',
   components: {
-    ElInputNumber,
-    ElRow,
-    Tinymce, MDinput, Upload, Multiselect, Sticky },
+    Ueditor, MDinput, Croppa, Sticky,CroppaList },
   props: {
     isEdit: {
       type: Boolean,
@@ -197,19 +196,20 @@ export default {
     return {
       dialogImageUrl: '',
       dialogVisible: false,
-      uploadURL: process.env.BASE_API+'/upload/image',
       calendarTypeOptions,
       calendargoodsStatusOptions,
       postForm: Object.assign({}, defaultForm),
       fetchSuccess: true,
       loading: false,
+      gooddsClass_options:[],
       rules: {
         title: [{ required: true, message:'请输入标题', trigger: 'blur' }],
         name: [{ required: true,  message:'请输入商品名',trigger: 'blur' }],
         goodsType:[{ required: true,  message:'请选择类型',trigger: 'blur' }],
         price:[{type: 'number', required: true,  message:'请输入价格',trigger: 'blur' }],
         priceMarket:[{type: 'number', required: true,  message:'请输入市场价',trigger: 'blur' }],
-        goodsStatus:[{ required: true,  message:'请选择状态',trigger: 'blur' }]
+        goodsStatus:[{ required: true,  message:'请选择状态',trigger: 'blur' }],
+        goodsClassID:[{ required: true,  message:'请选择分类',trigger: 'blur' }],
       }
     }
   },
@@ -219,6 +219,7 @@ export default {
     }
   },
   created() {
+    this.initData()
     if (this.isEdit) {
       this.fetchData()
     } else {
@@ -227,48 +228,16 @@ export default {
     }
   },
   methods: {
+    initData(){
+      fetchList('shop_goodsClass',{where:"status !='C' and parentID=0",page:1,limit:100}).then(data => {
+        this.gooddsClass_options = data.result;
+      });
+    },
     resetForm(formName) {
       this.$refs[formName].resetFields();
-      this.postForm.imgurl='';
+      this.$refs.imgurl.clear();
       this.$refs['editor'].setContent('');
       this.postForm.goodsImages=[];
-    },
-    handleRemove(file, fileList) {
-      for (var i = 0; i < this.postForm.goodsImages.length; i++) {
-        if (this.postForm.goodsImages[i].name == file.name) {
-          this.postForm.goodsImages.splice(i, 1);
-          return;
-        }
-      }
-    },
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      this.dialogVisible = true;
-    },
-    handlePictureCardSuccess(res, file) {
-      this.postForm.goodsImages.push({name:file.name,url:file.response.result,status:file.status});
-    },
-    handleAvatarSuccess(res, file) {
-      if(res.success) {
-        this.postForm.imgurl = res.result;
-      }else{
-        this.$message({
-          message: res.msg,
-          type: 'error'
-        })
-      }
-    },
-    beforeImgUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isJPG) {
-        this.$message.error('上传图片只能是 JPG 格式!');
-      }
-      if (!isLt2M) {
-        this.$message.error('上传图片大小不能超过 2MB!');
-      }
-      return isJPG && isLt2M;
     },
     fetchData() {
       fetchGoods(this.goods_id).then(res => {
@@ -278,81 +247,43 @@ export default {
         console.log(err)
       })
     },
-    submitForm() {
-      this.$refs.postForm.validate(valid => {
-        if (valid) {
-          if(this.postForm.goodsStatus=='U'){
-            this.$confirm("当前商品为上架状态，您确定要发布吗？","提示").then(()=>{
-              this.loading = true;
-              postGoods(this.postForm).then(res => {
-                this.fetchSuccess = true;
-                this.$notify({
-                  title: '成功',
-                  message: '商品发布成功',
-                  type: 'success',
-                  duration: 2000
-                });
-                if (!this.isEdit) this.resetForm('postForm');
-                this.loading = false;
-                this.postForm.status = 'published';
-              }).catch(err => {
-                this.fetchSuccess = false;
-                this.postForm.status = 'draft';
-                console.log(err)
-              })
-            });
-          }else {
+    async saveData(){
+      let res=await this.$refs['imgurl'].upload();
+      if(res) {
+        this.$refs.postForm.validate(valid => {
+          if (valid) {
             this.loading = true;
             postGoods(this.postForm).then(res => {
-                this.fetchSuccess = true;
-                this.$notify({
-                  title: '成功',
-                  message: '商品发布成功',
-                  type: 'success',
-                  duration: 2000
-                });
-                this.resetForm('postForm');
+              this.fetchSuccess = true;
+              this.$notify({
+                title: '成功',
+                message: '商品发布成功',
+                type: 'success',
+                duration: 2000
+              });
+              if (!this.isEdit) this.resetForm('postForm');
               this.loading = false;
-              this.postForm.status = 'published';
             }).catch(err => {
-              this.fetchSuccess = false;
-              this.postForm.status = 'draft';
               console.log(err)
             })
+          } else {
+            console.log('error submit!!');
           }
-        } else {
-          console.log('error submit!!');
-          return false
-        }
-      })
+        });
+      }
+    },
+    submitForm() {
+      if (this.postForm.goodsStatus == 'U') {
+        this.$confirm("当前商品为上架状态，您确定要发布吗？", "提示").then(() => {
+          this.saveData();
+        });
+      } else {
+        this.saveData();
+      }
     }
   }
 }
 </script>
-<style>
-  .avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-  .avatar-uploader .el-upload:hover {
-    border-color: #409EFF;
-  }
-  .avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 300px;
-    height: 200px;
-    line-height: 178px;
-    text-align: center;
-  }
-  .avatar {
-    height: 200px;
-    display: block;
-  }
-</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
   @import "src/styles/mixin.scss";
   .title-prompt{

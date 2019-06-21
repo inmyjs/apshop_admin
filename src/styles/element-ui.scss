@@ -1,5 +1,9 @@
  //覆盖一些element-ui样式
 
+ .el-breadcrumb__inner, .el-breadcrumb__inner a{
+  font-weight: 400!important;
+}
+
  .el-upload {
    input[type="file"] {
      display: none !important;
@@ -23,6 +27,13 @@
    }
  }
 
+ .fixed-width{
+  .el-button--mini{
+    padding: 7px 10px;
+    width: 60px;
+  }
+ }
+
  .status-col {
    .cell {
      padding: 0 10px;
@@ -33,7 +44,7 @@
    }
  }
 
- //暂时性解决diolag 问题 https://github.com/ElemeFE/element/issues/2461
+ //暂时性解决dialog 问题 https://github.com/ElemeFE/element/issues/2461
  .el-dialog {
    transform: none;
    left: 0;
@@ -62,3 +73,10 @@
      }
    }
  }
+
+//dropdown
+ .el-dropdown-menu{
+  a{
+    display: block
+  }
+}

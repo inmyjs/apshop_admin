@@ -23,7 +23,7 @@
 
       <el-table-column width="180px" align="center" label="发布时间">
         <template slot-scope="scope">
-          <span>{{scope.row.opAt | timeFilter }}</span>
+          <span>{{scope.row.createTime | timeFilter }}</span>
         </template>
       </el-table-column>
 
@@ -65,11 +65,13 @@
           </el-button>
           <el-button v-if="scope.row.goodsStatus=='U'" size="small" @click="handleModifyStatus(scope.row,'D')">下架
           </el-button>
-          <el-button v-if="scope.row.goodsStatus!='C'" size="small" type="danger" @click="handleModifyStatus(scope.row,'C')">删除
-          </el-button>
           <el-button v-if="scope.row.recommendFlag=='0'" size="small" type="primary" @click="handleRecommendFlag(scope.row,'1')">推荐
           </el-button>
           <el-button v-if="scope.row.recommendFlag=='1'" size="small" type="info" @click="handleRecommendFlag(scope.row,'0')">不推荐
+          </el-button>
+          <el-button v-if="scope.row.goodsStatus!='C'" size="small" type="danger" @click="handleModifyStatus(scope.row,'C')">删除
+          </el-button>
+          <el-button v-if="scope.row.goodsStatus=='C'" size="small" type="primary" @click="handleModifyStatus(scope.row,'0')">恢复
           </el-button>
         </template>
       </el-table-column>
@@ -98,11 +100,11 @@
 <script>
 import { fetchList, fetchPv ,updateGoodsStatus,updateRecommendFlag} from '@/api/goods'
 import waves from '@/directive/waves/index.js' // 水波纹指令
-import { momentTime } from '@/utils'
+import { parseTime } from '@/utils'
 
 const calendarTypeOptions = [
-  { key: 'T', display_name: '主题' },
-  { key: 'C', display_name: '组件' }
+  { key: 'E', display_name: '实物' },
+  { key: 'V', display_name: '虚拟商品' }
 ]
 
 // arr to obj
@@ -136,7 +138,7 @@ export default {
   },
   filters: {
     timeFilter(time){
-      return momentTime(time);
+      return parseTime(time,'YYYY-MM-DD HH:mm:ss');
     },
     statusFilter(status) {
       const statusMap = {

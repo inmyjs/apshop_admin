@@ -1,6 +1,6 @@
 <template>
   <div class="json-editor">
-    <textarea ref="textarea"></textarea>
+    <textarea ref="textarea"/>
   </div>
 </template>
 
@@ -15,13 +15,14 @@ import 'codemirror/addon/lint/lint'
 import 'codemirror/addon/lint/json-lint'
 
 export default {
-  name: 'jsonEditor',
+  name: 'JsonEditor',
+  /* eslint-disable vue/require-prop-types */
+  props: ['value'],
   data() {
     return {
       jsonEditor: false
     }
   },
-  props: ['value'],
   watch: {
     value(value) {
       const editor_value = this.jsonEditor.getValue()
@@ -53,11 +54,19 @@ export default {
 }
 </script>
 
-<style>
-.CodeMirror {
+<style scoped>
+.json-editor{
   height: 100%;
+  position: relative;
 }
-.json-editor .cm-s-rubyblue span.cm-string {
+.json-editor >>> .CodeMirror {
+  height: auto;
+  min-height: 300px;
+}
+.json-editor >>> .CodeMirror-scroll{
+  min-height: 300px;
+}
+.json-editor >>> .cm-s-rubyblue span.cm-string {
   color: #F08047;
 }
 </style>

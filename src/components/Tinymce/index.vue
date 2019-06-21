@@ -1,21 +1,26 @@
 <template>
-  <div class="tinymce-container editor-container">
-    <textarea class="tinymce-textarea" :id="tinymceId"></textarea>
+  <div :class="{fullscreen:fullscreen}" class="tinymce-container editor-container">
+    <textarea :id="tinymceId" class="tinymce-textarea"/>
     <div class="editor-custom-btn-container">
-     <editorImage  color="#20a0ff" class="editor-upload-btn" @successCBK="imageSuccessCBK"></editorImage>
-      </div>
+      <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK"/>
+    </div>
   </div>
 </template>
 
 <script>
 import editorImage from './components/editorImage'
+import plugins from './plugins'
+import toolbar from './toolbar'
 
 export default {
-  name: 'tinymce',
+  name: 'Tinymce',
   components: { editorImage },
   props: {
     id: {
-      type: String
+      type: String,
+      default: function() {
+        return 'vue-tinymce-' + +new Date() + ((Math.random() * 1000).toFixed(0) + '')
+      }
     },
     value: {
       type: String,
@@ -25,11 +30,12 @@ export default {
       type: Array,
       required: false,
       default() {
-        return ['removeformat undo redo |  bullist numlist | outdent indent | forecolor | fullscreen code', 'bold italic blockquote | h2 p  media link | alignleft aligncenter alignright']
+        return []
       }
     },
     menubar: {
-      default: ''
+      type: String,
+      default: 'file edit insert view format table'
     },
     height: {
       type: Number,
@@ -41,14 +47,29 @@ export default {
     return {
       hasChange: false,
       hasInit: false,
-      tinymceId: this.id || 'vue-tinymce-' + +new Date()
+      tinymceId: this.id,
+      fullscreen: false,
+      languageTypeList: {
+        'en': 'en',
+        'zh': 'zh_CN'
+      }
+    }
+  },
+  computed: {
+    language() {
+      return this.languageTypeList[this.$store.getters.language]
     }
   },
   watch: {
     value(val) {
       if (!this.hasChange && this.hasInit) {
-        this.$nextTick(() => window.tinymce.get(this.tinymceId).setContent(val))
+        this.$nextTick(() =>
+          window.tinymce.get(this.tinymceId).setContent(val || ''))
       }
+    },
+    language() {
+      this.destroyTinymce()
+      this.$nextTick(() => this.initTinymce())
     }
   },
   mounted() {
@@ -60,35 +81,44 @@ export default {
   deactivated() {
     this.destroyTinymce()
   },
+  destroyed() {
+    this.destroyTinymce()
+  },
   methods: {
     initTinymce() {
       const _this = this
       window.tinymce.init({
+        language: this.language,
         selector: `#${this.tinymceId}`,
         height: this.height,
         body_class: 'panel-body ',
         object_resizing: false,
-        toolbar: this.toolbar,
+        toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
         menubar: this.menubar,
-        plugins: 'advlist,autolink,code,paste,textcolor, colorpicker,fullscreen,link,lists,media,wordcount, imagetools',
+        plugins: plugins,
         end_container_on_empty_block: true,
         powerpaste_word_import: 'clean',
         code_dialog_height: 450,
         code_dialog_width: 1000,
         advlist_bullet_styles: 'square',
         advlist_number_styles: 'default',
-        imagetools_cors_hosts: ['wpimg.wallstcn.com', 'wallstreetcn.com'],
-        imagetools_toolbar: 'watermark',
+        imagetools_cors_hosts: ['www.tinymce.com', 'codepen.io'],
         default_link_target: '_blank',
         link_title: false,
+        nonbreaking_force_tab: true, // inserting nonbreaking space &nbsp; need Nonbreaking Space Plugin
         init_instance_callback: editor => {
           if (_this.value) {
             editor.setContent(_this.value)
           }
           _this.hasInit = true
-          editor.on('NodeChange Change KeyUp', () => {
+          editor.on('NodeChange Change KeyUp SetContent', () => {
             this.hasChange = true
-            this.$emit('input', editor.getContent({ format: 'raw' }))
+            this.$emit('input', editor.getContent())
+          })
+        },
+        setup(editor) {
+          editor.on('FullscreenStateChanged', (e) => {
+            _this.fullscreen = e.state
           })
         }
         // 整合七牛上传
@@ -143,16 +173,16 @@ export default {
         window.tinymce.get(_this.tinymceId).insertContent(`<img class="wscnph" src="${v.url}" >`)
       })
     }
-  },
-  destroyed() {
-    this.destroyTinymce()
   }
 }
 </script>
 
 <style scoped>
 .tinymce-container {
-  position: relative
+  position: relative;
+}
+.tinymce-container>>>.mce-fullscreen {
+  z-index: 10000;
 }
 .tinymce-textarea {
   visibility: hidden;
@@ -160,9 +190,13 @@ export default {
 }
 .editor-custom-btn-container {
   position: absolute;
-  right: 15px;
+  right: 4px;
+  top: 4px;
   /*z-index: 2005;*/
-  top: 18px;
+}
+.fullscreen .editor-custom-btn-container {
+  z-index: 10000;
+  position: fixed;
 }
 .editor-upload-btn {
   display: inline-block;

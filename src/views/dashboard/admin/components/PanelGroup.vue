@@ -1,46 +1,46 @@
 <template>
-  <el-row class="panel-group" :gutter="40">
-    <el-col :span="6">
-      <div class='card-panel' @click="handleSetLineChartData('register')">
+  <el-row :gutter="40" class="panel-group">
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('register')">
         <div class="card-panel-icon-wrapper icon-people">
           <svg-icon icon-class="peoples" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">新注册</div>
-          <count-to class="card-panel-num" :startVal="0" :endVal="reports.register" :duration="1000"></count-to>
+          <count-to :start-val="0" :end-val="reports.register" :duration="2600" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
-    <el-col :span="6">
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('guestBook')">
+        <div class="card-panel-icon-wrapper icon-message">
+          <svg-icon icon-class="message" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">留言</div>
+          <count-to :start-val="0" :end-val="reports.guestBook" :duration="3000" class="card-panel-num"/>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('account')">
         <div class="card-panel-icon-wrapper icon-money">
           <svg-icon icon-class="money" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">收益</div>
-          <count-to class="card-panel-num" :startVal="0" :endVal="reports.account" :duration="1000"></count-to>
+          <count-to :start-val="0" :end-val="reports.account" :duration="3200" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
-    <el-col :span="6">
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('order')">
-        <div class="card-panel-icon-wrapper icon-shoppingCard">
-          <svg-icon icon-class="shoppingCard" class-name="card-panel-icon" />
+        <div class="card-panel-icon-wrapper icon-shopping">
+          <svg-icon icon-class="shopping" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">订单</div>
-          <count-to class="card-panel-num" :startVal="0" :endVal="reports.order" :duration="1000"></count-to>
-        </div>
-      </div>
-    </el-col>
-    <el-col :span="6">
-      <div class="card-panel">
-        <div class="card-panel-icon-wrapper icon-message">
-          <svg-icon icon-class="message" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">留言</div>
-          <count-to class="card-panel-num" :startVal="0" :endVal="reports.guestBook" :duration="1000"></count-to>
+          <count-to :start-val="0" :end-val="reports.order" :duration="3600" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
@@ -48,10 +48,10 @@
 </template>
 
 <script>
-  import { getReportAPI} from '@/api/report'
 import CountTo from 'vue-count-to'
-
+import { getReportAPI} from '@/api/report'
 export default {
+
   data(){
     return {
       reports:{
@@ -65,12 +65,9 @@ export default {
   components: {
     CountTo
   },
-  created() {
-    this.getReport()
-  },
   methods: {
     handleSetLineChartData(type) {
-      this.$emit('handleSetLineChartData',type);
+      this.$emit('handleSetLineChartData', type)
     },
     getReport(){
       getReportAPI().then(data => {
@@ -83,7 +80,10 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 .panel-group {
-  margin-top: 20px;
+  margin-top: 18px;
+  .card-panel-col{
+    margin-bottom: 32px;
+  }
   .card-panel {
     height: 108px;
     cursor: pointer;
@@ -107,7 +107,7 @@ export default {
       .icon-money {
         background: #f4516c;
       }
-      .icon-shoppingCard {
+      .icon-shopping {
         background: #34bfa3
       }
     }
@@ -120,7 +120,7 @@ export default {
     .icon-money {
       color: #f4516c;
     }
-    .icon-shoppingCard {
+    .icon-shopping {
       color: #34bfa3
     }
     .card-panel-icon-wrapper {
@@ -151,5 +151,4 @@ export default {
     }
   }
 }
-
 </style>

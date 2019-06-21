@@ -1,15 +1,15 @@
 <template>
   <div class="components-container">
-    <code>Markdown 我们这里选用了
-      <a href="https://github.com/sparksuite/simplemde-markdown-editor" target="_blank">simplemde-markdown-editor</a> ，简单的用vue封装了一下
-      <a target="_blank" href="https://segmentfault.com/a/1190000009762198#articleHeader14">
+    <code>Markdown is based on
+      <a href="https://github.com/sparksuite/simplemde-markdown-editor" target="_blank">simplemde-markdown-editor</a> ，Simply encapsulated in Vue.
+      <a target="_blank" href="https://juejin.im/post/593121aa0ce4630057f70d35#heading-15">
         相关文章 </a>
     </code>
     <div class="editor-container">
-      <markdown-editor id="contentEditor" ref="contentEditor" v-model="content" :height="300" :zIndex="20"></markdown-editor>
+      <markdown-editor id="contentEditor" ref="contentEditor" v-model="content" :height="300" :z-index="20"/>
     </div>
-    <el-button @click="markdown2Html" style="margin-top:80px;" type="primary" icon="el-icon-document">转为HTML</el-button>
-    <div v-html="html"></div>
+    <el-button style="margin-top:80px;" type="primary" icon="el-icon-document" @click="markdown2Html">To HTML</el-button>
+    <div v-html="html"/>
   </div>
 </template>
 
@@ -27,7 +27,7 @@ const content = `
 `
 
 export default {
-  name: 'markdown-demo',
+  name: 'MarkdownDemo',
   components: { MarkdownEditor },
   data() {
     return {
@@ -45,5 +45,4 @@ export default {
   }
 }
 </script>
-
 

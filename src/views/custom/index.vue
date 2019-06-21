@@ -81,7 +81,7 @@
 <script>
 import { fetchList, updateCustomStatus} from '@/api/custom'
 import waves from '@/directive/waves/index.js' // 水波纹指令
-import { momentTime } from '@/utils'
+import { parseTime } from '@/utils'
 
 const calendarTypeOptions = [
   { key: '', display_name: '全部' },
@@ -152,7 +152,7 @@ export default {
   },
   filters: {
     timeFilter(time){
-      return momentTime(time);
+      return parseTime(time,'YYYY-MM-DD HH:mm:ss');
     },
     statusFilter(status) {
       const statusMap = {

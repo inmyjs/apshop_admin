@@ -5,6 +5,9 @@ const TokenKey = 'Admin-Token'
 export function getToken() {
   return Cookies.get(TokenKey)
 }
+export function getServerToken(key) {
+  return Cookies.get(key)
+}
 
 export function setToken(token) {
   return Cookies.set(TokenKey, token)
